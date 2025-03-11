@@ -1,0 +1,20 @@
+services:
+#  http:
+#    build: .
+#    ports:
+#      - "8888:8888"
+#    depends_on:
+#      - postgresql
+
+  postgresql:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: toor
+      POSTGRES_DB: mikostore
+    volumes:
+      - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d
+      - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d
+      - ./src/main/resources/database/create_status.sql:/docker-entrypoint-initdb.d
