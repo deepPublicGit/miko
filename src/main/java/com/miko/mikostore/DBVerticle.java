@@ -22,9 +22,9 @@ public class DBVerticle extends AbstractVerticle {
     PgConnectOptions connectOptions = new PgConnectOptions()
       .setPort(5432)
       .setHost("localhost")
-      .setDatabase("test-db")
-      .setUser("user")
-      .setPassword("password");
+      .setDatabase("postgres")
+      .setUser("root")
+      .setPassword("toor");
 
     PoolOptions poolOptions = new PoolOptions().setMaxSize(10);
 
