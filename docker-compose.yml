@@ -5,7 +5,19 @@ services:
 #      - "8888:8888"
 #    depends_on:
 #      - postgresql
-
+#  papercut:
+#    image: changemakerstudiosus/papercut-smtp
+#    ports:
+#      - "8080:80"
+#    environment:
+#      POSTGRES_USER: root
+#      POSTGRES_PASSWORD: toor
+#      POSTGRES_DB: mikostore
+#    volumes:
+#      - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d
+#      - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d
+#      - ./src/main/resources/database/create_status.sql:/docker-entrypoint-initdb.d
+#      -
   postgresql:
     image: postgres
     ports:
