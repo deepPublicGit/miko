@@ -1,3 +1,4 @@
+/*
 package com.miko.mikostore;
 
 import io.vertx.core.Vertx;
@@ -9,3 +10,4 @@ public class MainClass {
     vertx.deployVerticle(new MailVerticle());
   }
 }
+*/

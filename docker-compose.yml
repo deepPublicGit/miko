@@ -1,32 +1,32 @@
 services:
-#  http:
-#    build: .
-#    ports:
-#      - "8888:8888"
-#    depends_on:
-#      - postgresql
-#  papercut:
-#    image: changemakerstudiosus/papercut-smtp
-#    ports:
-#      - "8080:80"
-#    environment:
-#      POSTGRES_USER: root
-#      POSTGRES_PASSWORD: toor
-#      POSTGRES_DB: mikostore
-#    volumes:
-#      - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d
-#      - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d
-#      - ./src/main/resources/database/create_status.sql:/docker-entrypoint-initdb.d
-#      -
-  postgresql:
-    image: postgres
+  postgres:
+    image: postgres:latest
+    container_name: vertx_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: toor
-      POSTGRES_DB: mikostore
     volumes:
-      - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d
-      - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d
-      - ./src/main/resources/database/create_status.sql:/docker-entrypoint-initdb.d
+      - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d/1_create_app.sql
+      - ./src/main/resources/db/create_status.sql:/docker-entrypoint-initdb.d/2_create_status.sql
+      - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d/3_init_app.sql
+
+  vertx_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: test_vertx
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: mydb
+      DB_USER: user
+      DB_PASSWORD: password
+    ports:
+      - "8080:8888"
+    restart: always
