@@ -9,12 +9,14 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mail.MailMessage;
 import io.vertx.ext.web.RoutingContext;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 public class HistoricalVerticle extends AbstractVerticle {
@@ -32,9 +34,16 @@ public class HistoricalVerticle extends AbstractVerticle {
     startPromise.complete();
   }
 
-  private void saveHistory(Message<StatusModel> objectMessage) {
+  private void saveHistory(Message<String> objectMessage) {
     System.out.println("send.historical received! " + objectMessage.body());
-    historyService.insertStatus(objectMessage.body());
+    JsonObject event = new JsonObject(objectMessage.body());
+
+    StatusModel statusModel = new StatusModel();
+    statusModel.setStatus(event.getString("status"));
+    statusModel.setAppId(event.getInteger("appId"));
+    statusModel.setBotId(event.getInteger("botId"));
+    statusModel.setDateUpdated(event.getString("dateUpdated"));
+    historyService.insertStatus(statusModel);
   }
 
 }

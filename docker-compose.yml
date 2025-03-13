@@ -28,6 +28,7 @@ services:
       DB_NAME: mydb
       DB_USER: user
       DB_PASSWORD: password
+      EMAIL_TO: changehere
       SENDGRID_PWD: changehere
     ports:
       - "8888:8888"

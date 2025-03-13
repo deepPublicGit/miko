@@ -50,14 +50,15 @@ public class StatusService {
         errorCache.put(key, errorCache.getOrDefault(key, 0) + 1);
         if(errorCache.get(key) == 3) {
           sendEmail(eventBus, context);
-          context.response().setStatusCode(500).end("Internal Server Error!");
+//          context.response().setStatusCode(500).end("Internal Server Error!");
         }
       }
       client.preparedQuery(STATUS_QUERY)
         .execute(Tuple.of(newStatus, statusModel.getBotId(), statusModel.getAppId()))
         .onComplete(ar -> {
         if (ar.succeeded()) {
-          eventBus.send("send.historical", statusModel);
+          statusModel.setStatusEnum(newStatus);
+          eventBus.send("send.historical", Json.encode(statusModel));
           context.response().setStatusCode(200).end();
         }
       });
@@ -77,20 +78,17 @@ public class StatusService {
       });
   }
 
-  private static EmailFormat getEmailFormat(RoutingContext context) {
+  private static String getEmailFormat(RoutingContext context) {
     EmailFormat emailFormat = new EmailFormat();
     emailFormat.setFrom("pradeepkg41199@gmail.com");
     emailFormat.setTo(toEmail);
     emailFormat.setSubject("Error Event");
-    emailFormat.setBody(context.body().asString());
+    emailFormat.setBody(context.body().asString() == null ? "" : context.body().asString());
 
-    HashMap<String, String> errorDetails = new HashMap<>();
-    errorDetails.put("appId", context.pathParam("appId"));
-    errorDetails.put("botId", context.request().getParam("botId"));
-    errorDetails.put("status", context.request().getParam("status"));
-    errorDetails.put("timeStamp", Instant.now().toString());
-    emailFormat.setOptionalDetails(errorDetails);
-
-    return emailFormat;
+    emailFormat.setAppId(context.request().getParam("appId"));
+    emailFormat.setBotId(context.pathParam("botId"));
+    emailFormat.setStatus(context.request().getParam("status"));
+    emailFormat.setTimeStamp(Instant.now().toString());
+    return Json.encode(emailFormat);
   }
 }

@@ -9,6 +9,7 @@ import io.vertx.sqlclient.SqlClient;
 import io.vertx.sqlclient.Tuple;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 public class HistoryService {
@@ -24,13 +25,17 @@ public class HistoryService {
   }
 
   public void insertStatus(StatusModel statusModel) {
+//    System.out.println("Client + " + client);
 
     client.preparedQuery(HISTORY_INSERT_QUERY)
       .execute(Tuple.of(statusModel.getBotId(), statusModel.getAppId(),
-        statusModel.getStatus(), statusModel.getDateUpdated()))
+        statusModel.getStatusEnum(), LocalDateTime.parse(statusModel.getDateUpdated())))
       .onComplete(ar -> {
         if (ar.succeeded()) {
           System.out.println("Status inserted! Bot ID: " + statusModel.getBotId());
+        } else {
+          ar.cause().printStackTrace();
+          System.out.println("Status insertion failed! Bot ID: " + statusModel.getBotId());
         }
       });
   }

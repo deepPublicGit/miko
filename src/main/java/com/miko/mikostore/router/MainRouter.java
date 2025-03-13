@@ -58,7 +58,7 @@ public class MainRouter {
 
   private static void validateStatusRoute(RoutingContext routingContext) {
     try {
-      validateBotId(routingContext);
+      routingContext.put("botId", Integer.parseInt(routingContext.pathParam("botId")));
       routingContext.put("appId", Integer.parseInt(routingContext.request().getParam("appId")));
       routingContext.put("status", routingContext.request().getParam("status"));
       routingContext.next();

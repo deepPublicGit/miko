@@ -27,7 +27,7 @@ public class DBRepository{
     }
     return sqlClient;
   }
-
+// Postgres Partioning Strategy Needed - Geographic Sharding and Normal BotId based partitioning.
   private static SqlClient createSqlClient(Vertx vertx) {
     PgConnectOptions connectOptions = new PgConnectOptions()
       .setPort(dbPort)

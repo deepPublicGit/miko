@@ -49,19 +49,24 @@ public class MailVerticle extends AbstractVerticle {
     startPromise.complete();
   }
 
-  private void sendEmail(Message<EmailFormat> objectMessage) {
+  private void sendEmail(Message<String> objectMessage) {
     System.out.println("send.email received! " + objectMessage.body());
-//    JsonObject event = new JsonObject(objectMessage.body());
-    EmailFormat email = objectMessage.body();
+    JsonObject event = new JsonObject(objectMessage.body());
+
     MailMessage message = new MailMessage();
-    message.setFrom(email.getFrom());
-    message.setTo(email.getTo());
-    message.setSubject(email.getSubject());
+    message.setFrom(event.getString("from"));
+    message.setTo(event.getString("to"));
+    message.setSubject(event.getString("subject"));
     message.setText("");
-    message.setHtml(String.format(getHtml(), email.getOptionalDetails().get("appId"),
-      email.getOptionalDetails().get("botId"), email.getOptionalDetails().get("status"),
-      email.getOptionalDetails().get("timeStamp"), email.getBody()
-    ));
+    System.out.println("HTML; " + getHtml());
+    String html = getHtml();
+    html = html.replaceAll("\\bappId\\b", event.getString("appId"));
+    html = html.replaceAll("\\bbotId\\b", event.getString("botId"));
+    html = html.replaceAll("\\bstatusEnum\\b", event.getString("status"));
+    html = html.replaceAll("\\btimeStampNow\\b", event.getString("timeStamp"));
+    html = html.replaceAll("\\bbodyRequest\\b", event.getString("body"));
+
+    message.setHtml(html);
     System.out.println("Email" + message);
     mailClient.sendMail(message, mailResultAsyncResult -> {
       if (mailResultAsyncResult.succeeded()) {

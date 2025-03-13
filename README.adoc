@@ -5,27 +5,27 @@ image:https://img.shields.io/badge/vert.x-4.5.13-purple.svg[link="https://vertx.
 This application was generated using http://start.vertx.io
 
 == Building
+Built using vert.x, postgres, docker, sendgrid.
 
-To launch your tests:
+To Launch, use :
 ```
-./mvnw clean test
-```
-
-To package your application:
-```
-./mvnw clean package
+docker compose up
 ```
 
-To run your application:
+Available Endpoints:
 ```
-./mvnw clean compile exec:java
+http://localhost:8888/api/schedule/{botId} -- Integer botId (GET) Sets installable apps to schedule and reruns 1st app to be installed.
+http://localhost:8888/api/schedule/{botId}?appId=2 -- Get Next App to Install will return url of 3rd app (GET)
+http://localhost:8888/api/status/{botId}?appId=2&status=ERROR -- Update Status of botId and App (PUT), error thrice mail is sent out.
 ```
+![Schedule Api](images/scheduleapi.png)
+![Status Api](images/statusapi.png)
+![App List Table](images/appList.png)
+![Status Table](images/statusTable.png)
+![History Table](images/history.png)
+![Email Alert after 3 retries](images/email.png)
 
-== Help
+For sendgrid details reply over shared email.
 
-* https://vertx.io/docs/[Vert.x Documentation]
-* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
-* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
-* https://discord.gg/6ry7aqPWXy[Vert.x Discord]
 
 

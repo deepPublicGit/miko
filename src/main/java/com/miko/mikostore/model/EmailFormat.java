@@ -12,5 +12,8 @@ public class EmailFormat {
   private String cc;
   private String body;
   private String subject;
-  private HashMap optionalDetails;
+  private String botId;
+  private String appId;
+  private String status;
+  private String timeStamp;
 }

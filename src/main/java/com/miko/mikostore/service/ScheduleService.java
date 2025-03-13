@@ -35,13 +35,15 @@ public class ScheduleService {
     """;
 
   private final String SCHEDULE_QUERY = """
-    SELECT * FROM MIKO.STATUS WHERE BOT_ID = $1
+    SELECT * FROM MIKO.STATUS S JOIN MIKO.APP_LIST A ON S.APP_ID = A.APP_ID WHERE S.BOT_ID = $1
     """;
 
   public void getSchedule(int botId, RoutingContext context) {
 //    System.out.println("getSchedule: " +  client.toString());
-    int appId = Integer.parseInt(context.get("appId"));
-    if(localCache.containsKey(botId) && (appId + 1) < localCache.get(botId).size()) {
+    int appId = Integer.parseInt(context.request().getParam("appId") == null ? "-1" :
+      context.request().getParam("appId"));
+
+    if(localCache.containsKey(botId) && appId!=-1 && (appId + 1) < localCache.get(botId).size()) {
       context.response().end(Json.encodePrettily(localCache.get(botId).get(appId + 1)));
     } else {
       client.preparedQuery(SCHEDULE_INSERT_QUERY)
@@ -49,7 +51,7 @@ public class ScheduleService {
         .onComplete(ar -> {
         if (ar.succeeded()) {
           client.preparedQuery(SCHEDULE_QUERY)
-            .execute(Tuple.of(appId))
+            .execute(Tuple.of(botId))
             .onComplete(ar2 -> {
               RowSet<Row> result = ar2.result();
 

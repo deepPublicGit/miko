@@ -5,5 +5,5 @@ CREATE TABLE miko.history_status(
                    bot_id serial4 NOT NULL,
                    app_id serial4 NOT NULL,
                    status int NOT NULL,
-                   date_updated DATE NOT NULL
+                   date_updated TIMESTAMP NOT NULL
 );

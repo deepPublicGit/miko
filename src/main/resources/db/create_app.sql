@@ -6,6 +6,6 @@ CREATE TABLE miko.app_list(
                    app_name VARCHAR(100),
                    version int,
                    app_url VARCHAR(300),
-                   date_added DATE,
-                   date_updated DATE
+                   date_added TIMESTAMP,
+                   date_updated TIMESTAMP
 );
