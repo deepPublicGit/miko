@@ -13,6 +13,7 @@ services:
       - ./src/main/resources/db/create_app.sql:/docker-entrypoint-initdb.d/1_create_app.sql
       - ./src/main/resources/db/create_status.sql:/docker-entrypoint-initdb.d/2_create_status.sql
       - ./src/main/resources/db/init_app.sql:/docker-entrypoint-initdb.d/3_init_app.sql
+      - ./src/main/resources/db/create_history.sql:/docker-entrypoint-initdb.d/4_create_history.sql
 
   vertx_app:
     build:
@@ -27,6 +28,7 @@ services:
       DB_NAME: mydb
       DB_USER: user
       DB_PASSWORD: password
+      SENDGRID_PWD: changehere
     ports:
       - "8888:8888"
     restart: always

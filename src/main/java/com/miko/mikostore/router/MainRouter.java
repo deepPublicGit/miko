@@ -2,6 +2,7 @@ package com.miko.mikostore.router;
 
 import com.miko.mikostore.model.AppList;
 import com.miko.mikostore.model.EmailFormat;
+import com.miko.mikostore.model.StatusModel;
 import com.miko.mikostore.service.ScheduleService;
 import com.miko.mikostore.service.StatusService;
 import io.vertx.core.Vertx;
@@ -79,8 +80,12 @@ public class MainRouter {
     int botId = routingContext.get("botId");
     String status = routingContext.get("status");
     int appId = routingContext.get("appId");
-
-    statusService.updateStatus(botId, appId, status, eventBus, routingContext);
+    StatusModel statusModel = new StatusModel();
+    statusModel.setStatus(status);
+    statusModel.setBotId(botId);
+    statusModel.setAppId(appId);
+    statusModel.setDateUpdated(LocalDateTime.now(ZoneId.of("UTC")).toString());
+    statusService.updateStatus(statusModel, eventBus, routingContext);
   }
 
   private static void sendEmail(RoutingContext routingContext) {

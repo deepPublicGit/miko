@@ -2,6 +2,7 @@ package com.miko.mikostore;
 
 import com.miko.mikostore.model.EmailFormat;
 import com.miko.mikostore.model.StatusModel;
+import com.miko.mikostore.repository.DBRepository;
 import com.miko.mikostore.service.HistoryService;
 import com.miko.mikostore.service.ScheduleService;
 import io.vertx.core.AbstractVerticle;
@@ -9,6 +10,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.ext.mail.MailMessage;
+import io.vertx.ext.web.RoutingContext;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -22,7 +24,7 @@ public class HistoricalVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     System.out.println("Starting HistoricalVerticle");
-    historyService = new HistoryService()
+    historyService = new HistoryService(DBRepository.getSqlClient(vertx));
     EventBus eventBus = vertx.eventBus();
 
     eventBus.consumer("send.historical", this::saveHistory);
@@ -31,9 +33,8 @@ public class HistoricalVerticle extends AbstractVerticle {
   }
 
   private void saveHistory(Message<StatusModel> objectMessage) {
-    System.out.println("send.email received! " + objectMessage.body());
-    StatusModel email = objectMessage.body();
-
+    System.out.println("send.historical received! " + objectMessage.body());
+    historyService.insertStatus(objectMessage.body());
   }
 
 }

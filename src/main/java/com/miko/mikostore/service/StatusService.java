@@ -1,6 +1,7 @@
 package com.miko.mikostore.service;
 
 import com.miko.mikostore.model.EmailFormat;
+import com.miko.mikostore.model.StatusModel;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
@@ -39,13 +40,13 @@ public class StatusService {
     return statusCache.get(status);
   }
 
-  public void updateStatus(int botId, int appId, String status, EventBus eventBus, RoutingContext context) {
-    if (getStatusFromCache(status) == null)
+  public void updateStatus(StatusModel statusModel, EventBus eventBus, RoutingContext context) {
+    if (getStatusFromCache(statusModel.getStatus()) == null)
         context.response().setStatusCode(400).end("Invalid Status!");
     else {
-      int newStatus = getStatusFromCache(status);
+      int newStatus = getStatusFromCache(statusModel.getStatus());
       if(newStatus == 3) {
-        String key = botId + "_" + appId;
+        String key = statusModel.getBotId() + "_" + statusModel.getAppId();
         errorCache.put(key, errorCache.getOrDefault(key, 0) + 1);
         if(errorCache.get(key) == 3) {
           sendEmail(eventBus, context);
@@ -53,10 +54,10 @@ public class StatusService {
         }
       }
       client.preparedQuery(STATUS_QUERY)
-        .execute(Tuple.of(newStatus, botId, appId))
+        .execute(Tuple.of(newStatus, statusModel.getBotId(), statusModel.getAppId()))
         .onComplete(ar -> {
         if (ar.succeeded()) {
-          eventBus.send("send.historical", context);
+          eventBus.send("send.historical", statusModel);
           context.response().setStatusCode(200).end();
         }
       });
@@ -76,7 +77,7 @@ public class StatusService {
       });
   }
 
-  private static String getEmailFormat(RoutingContext context) {
+  private static EmailFormat getEmailFormat(RoutingContext context) {
     EmailFormat emailFormat = new EmailFormat();
     emailFormat.setFrom("pradeepkg41199@gmail.com");
     emailFormat.setTo(toEmail);
@@ -90,6 +91,6 @@ public class StatusService {
     errorDetails.put("timeStamp", Instant.now().toString());
     emailFormat.setOptionalDetails(errorDetails);
 
-    return Json.encode(emailFormat);
+    return emailFormat;
   }
 }
