@@ -2,12 +2,16 @@ package com.miko.mikostore.router;
 
 import com.miko.mikostore.model.AppList;
 import com.miko.mikostore.model.EmailFormat;
+import com.miko.mikostore.repository.DBRepository;
+import com.miko.mikostore.service.ScheduleService;
+import com.miko.mikostore.service.StatusService;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.sqlclient.SqlClient;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,19 +19,25 @@ import java.time.ZoneId;
 public class MainRouter {
 
   private static EventBus emailEventBus;
+  private static ScheduleService scheduleService;
+  private static StatusService statusService;
 
-  public static Router createRouter(Vertx vertx) {
+  public static Router createRouter(Vertx vertx, SqlClient sqlClient) {
     emailEventBus = vertx.eventBus();
+//    SqlClient sqlClient = (SqlClient) vertx.sharedData().getLocalMap("db").get("sqlClient");
+    scheduleService = new ScheduleService(sqlClient);
+    statusService = new StatusService(sqlClient);
 
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
 
-    router.route("/api/status/:id").handler(MainRouter::validateId);
+    router.route("/api/status/:botId").handler(MainRouter::validateStatusRoute);
+    router.route("/api/schedule/:botId").handler(MainRouter::validateBotId);
 
-    router.get("/api/schedule").handler(MainRouter::getSchedule);
+    router.get("/api/schedule/:botId").handler(MainRouter::getSchedule);
+    router.put("/api/status/:botId").handler(MainRouter::updateStatus);
     router.get("/api/sendEmail").handler(MainRouter::sendEmail);
 
-    router.put("/api/status/:id").handler(MainRouter::updateStatus);
     router.route("/*").handler(routingContext -> routingContext.response()
       .setStatusCode(404)
       .end("No Route Found"));
@@ -35,29 +45,58 @@ public class MainRouter {
     return router;
   }
 
-  private static void sendEmail(RoutingContext routingContext) {
-    emailEventBus
-      .request("send.email", getEmailHeaders())
-      .onComplete(ar -> {
-      if (ar.succeeded()) {
-        System.out.printf("Email sent: %s\n", ar.result().body());
-        routingContext.response().setStatusCode(200).end();
-      } else {
-        System.out.printf("Email failed: %s\n", ar.cause().getMessage());
-        routingContext.response().setStatusCode(500).end("Internal Server Error");
-      }
-    });
+  private static void validateBotId(RoutingContext routingContext) {
+    try {
+      routingContext.put("botId", Integer.parseInt(routingContext.pathParam("botId")));
+      routingContext.next();
+    } catch (NumberFormatException e) {
+      routingContext.response()
+        .setStatusCode(400)
+        .end("Bad Request: Invalid BotId");
+    }
   }
 
-  private static void updateStatus(RoutingContext routingContext) {
-
+  private static void validateStatusRoute(RoutingContext routingContext) {
+    try {
+      validateBotId(routingContext);
+      routingContext.put("appId", Integer.parseInt(routingContext.request().getParam("appId")));
+      routingContext.put("status", routingContext.request().getParam("status"));
+      routingContext.next();
+    } catch (NumberFormatException e) {
+      routingContext.response()
+        .setStatusCode(400)
+        .end("Bad Request: Invalid request params!");
+    }
   }
 
 
   private static void getSchedule(RoutingContext routingContext) {
-    routingContext.response()
-      .setStatusCode(200)
-      .end(Json.encode(getDummyAppList()));
+    int botId = routingContext.get("botId");
+    scheduleService.getSchedule(botId, routingContext);
+  }
+
+
+  private static void updateStatus(RoutingContext routingContext) {
+    int botId = routingContext.get("botId");
+    String status = routingContext.get("status");
+    int appId = routingContext.get("appId");
+
+    statusService.updateStatus(botId, appId, status, routingContext);
+
+  }
+
+  private static void sendEmail(RoutingContext routingContext) {
+    emailEventBus
+      .request("send.email", getEmailHeaders())
+      .onComplete(ar -> {
+        if (ar.succeeded()) {
+          System.out.printf("Email sent: %s\n", ar.result().body());
+          routingContext.response().setStatusCode(200).end();
+        } else {
+          System.out.printf("Email failed: %s\n", ar.cause().getMessage());
+          routingContext.response().setStatusCode(500).end("Internal Server Error");
+        }
+      });
   }
 
   private static AppList getDummyAppList() {
@@ -73,15 +112,11 @@ public class MainRouter {
 
   private static String getEmailHeaders() {
     EmailFormat emailFormat = new EmailFormat();
-    emailFormat.setTo("yolo@yolo.com");
-    emailFormat.setFrom("yolo@yolo.com");
-    emailFormat.setSubject("YOLO");
+    emailFormat.setFrom("pradeepkg41199@gmail.com");
+    emailFormat.setTo("pg903@snu.edu.in");
+    emailFormat.setSubject("Error Event");
     emailFormat.setBody(getDummyAppList().toString());
-    emailFormat.setCc("yolo@yolo.com");
     return Json.encode(emailFormat);
   }
 
-  private static void validateId(RoutingContext ctx) {
-
-  }
 }
