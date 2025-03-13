@@ -18,22 +18,28 @@ http://localhost:8888/api/schedule/{botId} -- Integer botId (GET) Sets installab
 http://localhost:8888/api/schedule/{botId}?appId=2 -- Get Next App to Install will return url of 3rd app (GET)
 http://localhost:8888/api/status/{botId}?appId=2&status=ERROR -- Update Status of botId and App (PUT), error thrice mail is sent out, automatically inserts into historical table.
 ```
-/schedule endpoint example
+/schedule endpoint example:
+
 image::images/scheduleapi.png[Schedule Api]
 
-/status endpoint example
+/status endpoint example:
+
 image::images/statusapi.png[Status Api]
 
-postgres app list table
+postgres app list table:
+
 image::images/appList.png[App List Table]
 
-postgres status table
+postgres status table:
+
 image::images/statusTable.png[Status Table]
 
-postgres history tracking table
+postgres history tracking table:
+
 image::images/history.png[History Table]
 
-sample error email.
+sample error email:
+
 image::images/email.png[Email Alert after 3 retries]
 
 For sendgrid details reply over shared email.
