@@ -18,12 +18,12 @@ http://localhost:8888/api/schedule/{botId} -- Integer botId (GET) Sets installab
 http://localhost:8888/api/schedule/{botId}?appId=2 -- Get Next App to Install will return url of 3rd app (GET)
 http://localhost:8888/api/status/{botId}?appId=2&status=ERROR -- Update Status of botId and App (PUT), error thrice mail is sent out.
 ```
-![Schedule Api](images/scheduleapi.png)
-![Status Api](images/statusapi.png)
-![App List Table](images/appList.png)
-![Status Table](images/statusTable.png)
-![History Table](images/history.png)
-![Email Alert after 3 retries](images/email.png)
+image::images/scheduleapi.png[Schedule Api]
+image::images/statusapi.png[Status Api]
+image::images/appList.png[App List Table]
+image::images/statusTable.png[Status Table]
+image::images/history.png[History Table]
+image::images/email.png[Email Alert after 3 retries]
 
 For sendgrid details reply over shared email.
 
