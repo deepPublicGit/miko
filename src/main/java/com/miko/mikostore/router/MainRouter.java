@@ -2,7 +2,6 @@ package com.miko.mikostore.router;
 
 import com.miko.mikostore.model.AppList;
 import com.miko.mikostore.model.EmailFormat;
-import com.miko.mikostore.repository.DBRepository;
 import com.miko.mikostore.service.ScheduleService;
 import com.miko.mikostore.service.StatusService;
 import io.vertx.core.Vertx;
@@ -18,12 +17,12 @@ import java.time.ZoneId;
 
 public class MainRouter {
 
-  private static EventBus emailEventBus;
+  private static EventBus eventBus;
   private static ScheduleService scheduleService;
   private static StatusService statusService;
 
   public static Router createRouter(Vertx vertx, SqlClient sqlClient) {
-    emailEventBus = vertx.eventBus();
+    eventBus = vertx.eventBus();
 //    SqlClient sqlClient = (SqlClient) vertx.sharedData().getLocalMap("db").get("sqlClient");
     scheduleService = new ScheduleService(sqlClient);
     statusService = new StatusService(sqlClient);
@@ -81,12 +80,11 @@ public class MainRouter {
     String status = routingContext.get("status");
     int appId = routingContext.get("appId");
 
-    statusService.updateStatus(botId, appId, status, routingContext);
-
+    statusService.updateStatus(botId, appId, status, eventBus, routingContext);
   }
 
   private static void sendEmail(RoutingContext routingContext) {
-    emailEventBus
+    eventBus
       .request("send.email", getEmailHeaders())
       .onComplete(ar -> {
         if (ar.succeeded()) {
@@ -114,7 +112,7 @@ public class MainRouter {
     EmailFormat emailFormat = new EmailFormat();
     emailFormat.setFrom("pradeepkg41199@gmail.com");
     emailFormat.setTo("pg903@snu.edu.in");
-    emailFormat.setSubject("Error Event");
+    emailFormat.setSubject("Error Event - App Installation");
     emailFormat.setBody(getDummyAppList().toString());
     return Json.encode(emailFormat);
   }

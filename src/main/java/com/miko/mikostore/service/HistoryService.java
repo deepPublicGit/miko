@@ -4,35 +4,22 @@ import com.miko.mikostore.model.EmailFormat;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.SqlClient;
 import io.vertx.sqlclient.Tuple;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-public class StatusService {
+public class HistoryService {
 
   private final SqlClient client;
 
-  private final HashMap<String, Integer> statusCache; // Should be in Redis
-  private final HashMap<String, Integer> errorCache; // Should be in Redis
-  private final static String toEmail = System.getenv().getOrDefault("EMAIL_TO", "pradeepkg41199@gmail.com");
-
-  private final String STATUS_QUERY = """
-    UPDATE MIKO.STATUS SET STATUS = $1 WHERE BOT_ID = $2 AND APP_ID = $3
+  private final String HISTOR_INSERT_QUERY = """
+    INSERT INTO MIKO.HISTORY_STATUS (BOT_ID, APP_ID, STATUS, DATE_UPDATED) VALUES ($1, $2, $3, $4)
     """;
 
-  public StatusService(SqlClient sqlClient) {
+  public HistoryService(SqlClient sqlClient) {
     client = sqlClient;
-    statusCache = new HashMap<>();
-    errorCache = new HashMap<>();
-    statusCache.put("SCHEDULED", 0);
-    statusCache.put("PICKEDUP", 1);
-    statusCache.put("COMPLETED", 2);
-    statusCache.put("ERROR", 3);
   }
 
   public Integer getStatusFromCache(String status) {
@@ -76,20 +63,4 @@ public class StatusService {
       });
   }
 
-  private static String getEmailFormat(RoutingContext context) {
-    EmailFormat emailFormat = new EmailFormat();
-    emailFormat.setFrom("pradeepkg41199@gmail.com");
-    emailFormat.setTo(toEmail);
-    emailFormat.setSubject("Error Event");
-    emailFormat.setBody(context.body().asString());
-
-    HashMap<String, String> errorDetails = new HashMap<>();
-    errorDetails.put("appId", context.pathParam("appId"));
-    errorDetails.put("botId", context.request().getParam("botId"));
-    errorDetails.put("status", context.request().getParam("status"));
-    errorDetails.put("timeStamp", Instant.now().toString());
-    emailFormat.setOptionalDetails(errorDetails);
-
-    return Json.encode(emailFormat);
-  }
 }

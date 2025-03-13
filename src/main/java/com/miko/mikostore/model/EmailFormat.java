@@ -2,6 +2,9 @@ package com.miko.mikostore.model;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Objects;
+
 @Data
 public class EmailFormat {
   private String to;
@@ -9,4 +12,5 @@ public class EmailFormat {
   private String cc;
   private String body;
   private String subject;
+  private HashMap optionalDetails;
 }

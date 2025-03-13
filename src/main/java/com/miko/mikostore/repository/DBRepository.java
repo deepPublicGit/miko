@@ -17,9 +17,18 @@ public class DBRepository{
   private final static  String dbName = System.getenv().getOrDefault("DB_NAME", "mydb");
   private final static  String dbUser = System.getenv().getOrDefault("DB_USER", "user");
   private final static  String dbPassword = System.getenv().getOrDefault("DB_PASSWORD", "password");
-
+  private static SqlClient sqlClient;
 
   public static SqlClient getSqlClient(Vertx vertx) {
+    synchronized (DBRepository.class) {
+      if (sqlClient == null) {
+        sqlClient = createSqlClient(vertx);
+      }
+    }
+    return sqlClient;
+  }
+
+  private static SqlClient createSqlClient(Vertx vertx) {
     PgConnectOptions connectOptions = new PgConnectOptions()
       .setPort(dbPort)
       .setHost(dbHost)
