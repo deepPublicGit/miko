@@ -16,7 +16,7 @@ Available Endpoints:
 ```
 http://localhost:8888/api/schedule/{botId} -- Integer botId (GET) Sets installable apps to schedule and reruns 1st app to be installed.
 http://localhost:8888/api/schedule/{botId}?appId=2 -- Get Next App to Install will return url of 3rd app (GET)
-http://localhost:8888/api/status/{botId}?appId=2&status=ERROR -- Update Status of botId and App (PUT), error thrice mail is sent out.
+http://localhost:8888/api/status/{botId}?appId=2&status=ERROR -- Update Status of botId and App (PUT), error thrice mail is sent out, automatically inserts into historical table.
 ```
 image::images/scheduleapi.png[Schedule Api]
 image::images/statusapi.png[Status Api]
