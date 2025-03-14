@@ -40,6 +40,7 @@ public class HistoricalVerticle extends AbstractVerticle {
 
     StatusModel statusModel = new StatusModel();
     statusModel.setStatus(event.getString("status"));
+    statusModel.setStatusEnum(event.getInteger("statusEnum"));
     statusModel.setAppId(event.getInteger("appId"));
     statusModel.setBotId(event.getInteger("botId"));
     statusModel.setDateUpdated(event.getString("dateUpdated"));
